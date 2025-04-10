@@ -8,7 +8,7 @@ const { testConnection } = require("./config/db");
 // Middleware
 app.use(
   cors({
-    origin: "http://localhost:5173", // Frontend URL
+    origin: "http://localhost:5173" || "https://store-manager-psi.vercel.app",
     credentials: true,
   })
 );
