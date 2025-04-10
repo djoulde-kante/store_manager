@@ -1,3 +1,4 @@
+import React, { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   saleService,
@@ -45,11 +46,18 @@ const chartOptions = {
 };
 
 export default function Dashboard() {
-  // Récupération des dernières ventes
+  // Récupération de toutes les ventes (pour les statistiques)
   const { data: salesData, isLoading: salesLoading } = useQuery({
     queryKey: ["sales"],
     queryFn: saleService.getAllSales,
   });
+
+  // Filtrer les ventes du jour
+  const todaySales = React.useMemo(() => {
+    if (!salesData) return [];
+    const today = new Date().toISOString().split("T")[0];
+    return salesData.filter((sale) => sale.timestamp.split("T")[0] === today);
+  }, [salesData]);
 
   // Modifiez la requête des statistiques de profit
   const { data: profitData } = useQuery({
@@ -204,15 +212,15 @@ export default function Dashboard() {
       <div className="bg-white shadow rounded-lg">
         <div className="px-4 py-5 sm:px-6">
           <h3 className="text-lg font-medium leading-6 text-gray-900">
-            Dernières ventes
+            Ventes du jour
           </h3>
         </div>
         <div className="border-t border-gray-200">
           <div className="px-4 py-5 sm:p-6">
             {salesLoading ? (
               <p>Chargement...</p>
-            ) : salesData?.length === 0 ? (
-              <p className="text-gray-500">Aucune vente récente</p>
+            ) : todaySales.length === 0 ? (
+              <p className="text-gray-500">Aucune vente aujourd'hui</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
@@ -222,7 +230,7 @@ export default function Dashboard() {
                         ID
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Date
+                        Heure
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Montant
@@ -233,16 +241,23 @@ export default function Dashboard() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {salesData?.map((sale) => (
+                    {todaySales.map((sale) => (
                       <tr key={sale.id}>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {sale.id}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {new Date(sale.timestamp).toLocaleDateString()}
+                          {new Date(sale.timestamp).toLocaleTimeString(
+                            "fr-FR",
+                            {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            }
+                          )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {sale.total} €
+                          {new Intl.NumberFormat("fr-FR").format(sale.total)}{" "}
+                          GNF
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {sale.payment_method}

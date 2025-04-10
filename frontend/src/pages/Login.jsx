@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { authService } from "../api";
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const {
@@ -17,10 +18,16 @@ export default function Login() {
     try {
       setIsLoading(true);
       setError("");
-      await authService.login(data);
-      navigate("/");
+
+      await login(data);
+
+      // Petit délai pour s'assurer que le token est bien enregistré
+      setTimeout(() => {
+        navigate("/");
+      }, 100);
     } catch (err) {
-      setError(err.message || "Identifiants incorrects");
+      console.error("Login error:", err);
+      setError("Identifiants incorrects ou problème de connexion");
     } finally {
       setIsLoading(false);
     }

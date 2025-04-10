@@ -10,24 +10,37 @@ import {
 
 // Login user
 export const login = async (credentials) => {
-  const response = await fetch(`${API_URL}/users/login`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(credentials),
-    ...fetchOptions,
-  });
+  try {
+    // Ensure we're starting with a clean state
+    removeToken();
+    removeUser();
 
-  const data = await handleResponse(response);
+    const response = await fetch(`${API_URL}/users/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(credentials),
+      ...fetchOptions,
+    });
 
-  // Store token and user data in local storage
-  if (data.token && data.user) {
-    setToken(data.token);
-    setUser(data.user);
+    const data = await handleResponse(response);
+
+    // Store token and user data in local storage
+    if (data.token && data.user) {
+      setToken(data.token);
+      setUser(data.user);
+      // Verify token immediately after login
+      await getCurrentUser();
+    }
+
+    return data;
+  } catch (error) {
+    // Clean up if anything goes wrong
+    removeToken();
+    removeUser();
+    throw error;
   }
-
-  return data;
 };
 
 // Logout user

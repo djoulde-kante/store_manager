@@ -21,6 +21,7 @@ export const AuthProvider = ({ children }) => {
           setUser(userData);
         }
       } catch (error) {
+        console.error("Auth check error:", error);
         // If token is invalid, log out user
         logout();
       } finally {
@@ -33,9 +34,14 @@ export const AuthProvider = ({ children }) => {
 
   // Login function
   const login = async (credentials) => {
-    const data = await authService.login(credentials);
-    setUser(data.user);
-    return data;
+    try {
+      const data = await authService.login(credentials);
+      setUser(data.user);
+      return data;
+    } catch (error) {
+      console.error("Login error in context:", error);
+      throw error;
+    }
   };
 
   // Logout function
