@@ -1,0 +1,80 @@
+Cahier des charges : Application web de gestion d’une supérette (avec gestion des commandes)
+1. Objectif
+Développer une application web pour gérer une supérette : stocks, ventes, utilisateurs, rapports et commandes. Solution fonctionnelle avec React.js (frontend), Tailwind CSS (styles), Node.js (backend), MySQL (base de données).
+
+2. Fonctionnalités à coder
+2.1 Gestion des stocks
+Entités MySQL : Table products (id, name, category, buy_price, sell_price, quantity, barcode, description).
+Backend (Node.js) : API REST pour CRUD (POST /products, GET /products, PUT /products/:id, DELETE /products/:id).
+Frontend (React.js) : Page avec tableau filtrable (recherche par nom/catégorie), formulaires pour ajout/modification, bouton suppression.
+Fonctionnalité : Alerte visuelle (Tailwind CSS) si quantity < seuil (paramètre configurable dans table settings).
+Extra : Endpoint pour importer/exporter CSV (GET /products/export, POST /products/import).
+2.2 Gestion des ventes
+Entités MySQL : Table sales (id, product_id, quantity, total, payment_method, timestamp).
+Backend (Node.js) : API POST /sales pour enregistrer une vente, GET /sales pour historique.
+Frontend (React.js) : Interface caisse avec scan (input barcode) ou saisie manuelle, calcul total/rendu monnaie, sélection paiement (espèces, carte, mobile).
+Fonctionnalité : Génération ticket (HTML avec Tailwind CSS, export PDF via bibliothèque jsPDF).
+2.3 Gestion des utilisateurs
+Entités MySQL : Table users (id, username, password_hash, role [admin/employee]).
+Backend (Node.js) : Authentification JWT (POST /login), middleware pour vérifier rôle.
+Frontend (React.js) : Page login, tableau gestion utilisateurs (admin only), formulaire ajout/modification utilisateur.
+Sécurité : Hash des mots de passe (bcrypt), restriction des actions par rôle.
+2.4 Rapports et analyses
+Backend (Node.js) : Endpoints GET /reports/daily, /reports/weekly, /reports/monthly (requêtes SQL agrégées), GET /reports/top-products.
+Frontend (React.js) : Tableau de bord avec graphiques (via Chart.js), tableau des ventes, bouton export PDF/Excel (bibliothèque comme exceljs).
+Fonctionnalité : Calcul automatique des bénéfices (total ventes - coût stock).
+2.5 Gestion des commandes
+Entités MySQL :
+Table orders (id, user_id, status [pending/confirmed/shipped/cancelled], total, created_at, updated_at).
+Table order_items (id, order_id, product_id, quantity, price_at_order).
+Backend (Node.js) :
+POST /orders : Créer une commande (ajoute entrée dans orders et order_items).
+GET /orders : Lister commandes (filtre par status, date).
+PUT /orders/:id : Modifier statut (ex. : pending → shipped).
+DELETE /orders/:id : Supprimer commande (si pending).
+GET /orders/:id : Détails commande (avec items).
+Frontend (React.js) :
+Page "Commandes" : Tableau des commandes (colonnes : ID, date, statut, total, actions).
+Formulaire création : Sélection produits (dropdown ou recherche), quantités, calcul total.
+Bouton statut : Menu déroulant pour changer statut (style Tailwind CSS).
+Détail commande : Modal avec liste items (nom, quantité, prix).
+Fonctionnalité :
+Mise à jour stock : Réduire products.quantity quand statut passe à "shipped".
+Historique : Timestamp dans orders.updated_at à chaque changement statut.
+
+3. Spécifications techniques
+3.1 Stack imposé
+Frontend : React.js, Tailwind CSS.
+Backend : Node.js.
+Base de données : MySQL.
+3.2 Structure projet 
+/frontend : React app (créée via create-react-app).
+- /components : Composants réutilisables (ex. : ProductCard, SalesForm).
+- /pages : Stock, Sales, Users, Reports.
+Tailwind CSS configuré dans tailwind.config.js.
+
+/backend : Node.js app.
+- /routes : Fichiers API (products.js, sales.js, users.js, reports.js).
+- /models : Connexion MySQL et requêtes.
+3.3 Performance
+Responsive : Tailwind CSS avec breakpoints (mobile-first).
+
+4. Instructions
+Priorité : 
+- Stocks + ventes (MVP).
+- Commandes (core feature).
+- Utilisateurs + rapports (finalisation).
+Livrables : Code source, script SQL pour DB, README avec instructions (lancer frontend/backend).
+
+5. Contraintes
+Lien stocks/commandes : Synchronisation automatique stock lors validation commande.
+Interface : Textes commandes en français (ex. : "En attente", "Expédiée").
+
+6. Résultat attendu
+Application 
+Application web avec gestion complète (stocks, ventes, commandes, utilisateurs, rapports) déployable localement (node + react).
+Interface fluide (Tailwind CSS), navigation intuitive (React Router).
+API REST documentée (Swagger ou commentaires inline).
+Base de données MySQL.
+
+
