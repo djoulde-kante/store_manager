@@ -71,13 +71,5 @@ VALUES ('low_stock_threshold', '10', 'Seuil d\'alerte pour stock bas');
 
 -- Insert default admin user (username: admin, password: admin123)
 INSERT INTO users (username, password_hash, role)
-VALUES ('admin', '$2b$10$3euPcmQFCiblsZeEu5s7p.9MUZWg8TFXxe9i9SkOU3vx5YnNp3IGi', 'admin');
+VALUES ('admin', '$2b$10$f56ycqJZAnvsMxOueS9xGOe.o8BOvETzFsSbA7kWWbSCL1X0XVqgS', 'admin');
 
--- Insert some sample products
-INSERT INTO products (name, category, buy_price, sell_price, quantity, barcode, description)
-VALUES 
-('Lait Entier 1L', 'Produits laitiers', 1.20, 1.50, 50, '3000000000001', 'Lait entier de ferme'),
-('Baguette Tradition', 'Boulangerie', 1.10, 1.30, 30, '3000000000002', 'Baguette tradition fraîche'),
-('Pommes Golden (kg)', 'Fruits et légumes', 2.50, 3.00, 40, '3000000000003', 'Pommes Golden de France'),
-('Eau Minérale 6x1.5L', 'Boissons', 3.50, 4.00, 25, '3000000000004', 'Pack de 6 bouteilles d\'eau minérale'),
-('Café Moulu 250g', 'Épicerie', 4.20, 4.50, 15, '3000000000005', 'Café arabica moulu');
