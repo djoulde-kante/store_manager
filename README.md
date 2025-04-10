@@ -13,12 +13,14 @@ Application web complète pour la gestion d'une supérette, permettant de gérer
 ## Technologies utilisées
 
 ### Frontend
+
 - React.js
 - Tailwind CSS
 - Chart.js (pour les graphiques)
 - jsPDF (pour l'export de tickets et rapports)
 
 ### Backend
+
 - Node.js
 - Express.js
 - JWT (pour l'authentification)
@@ -27,10 +29,12 @@ Application web complète pour la gestion d'une supérette, permettant de gérer
 ## Installation et configuration
 
 ### Prérequis
+
 - Node.js (v14 ou supérieur)
 - MySQL (v5.7 ou supérieur)
 
 ### Base de données
+
 1. Créez une base de données MySQL
 2. Importez le schéma de base de données depuis `backend/database.sql`
 
@@ -39,17 +43,21 @@ mysql -u votre_utilisateur -p votre_base_de_donnees < backend/database.sql
 ```
 
 ### Backend
+
 1. Accédez au répertoire backend
+
 ```bash
 cd backend
 ```
 
 2. Installez les dépendances
+
 ```bash
 npm install
 ```
 
 3. Créez un fichier `.env` avec les informations suivantes
+
 ```
 PORT=5000
 DB_HOST=localhost
@@ -60,22 +68,27 @@ JWT_SECRET=votre_clé_secrète_jwt
 ```
 
 4. Démarrez le serveur
+
 ```bash
 npm start
 ```
 
 ### Frontend
+
 1. Accédez au répertoire frontend
+
 ```bash
 cd frontend
 ```
 
 2. Installez les dépendances
+
 ```bash
 npm install
 ```
 
 3. Démarrez l'application React
+
 ```bash
 npm run dev
 ```
@@ -83,11 +96,20 @@ npm run dev
 ## Utilisation
 
 ### Accès à l'application
+
 Accédez à l'application via l'URL : http://localhost:5173
 
 ### Identifiants par défaut
+
 - **Utilisateur** : admin
 - **Mot de passe** : admin123
+
+### Si vous rencontrez des problèmes lors de la connexion
+
+```bash
+# Dans le dossier backend
+node test-auth.js
+```
 
 ## Structure du projet
 
@@ -110,3 +132,4 @@ store-manager/
 
 ## Licence
 Ce projet est sous licence MIT.
+```
