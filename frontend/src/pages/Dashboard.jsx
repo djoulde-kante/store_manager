@@ -1,5 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import {
+  saleService,
+  reportService,
+  productService,
+  userService,
+} from "../api";
+import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
@@ -25,37 +31,6 @@ ChartJS.register(
   Legend
 );
 
-const stats = [
-  {
-    name: "Chiffre d'affaires",
-    value: "0 €",
-    icon: CurrencyEuroIcon,
-    change: "+0%",
-    changeType: "positive",
-  },
-  {
-    name: "Ventes",
-    value: "0",
-    icon: ShoppingBagIcon,
-    change: "+0%",
-    changeType: "positive",
-  },
-  {
-    name: "Produits",
-    value: "0",
-    icon: CubeIcon,
-    change: "+0%",
-    changeType: "positive",
-  },
-  {
-    name: "Utilisateurs",
-    value: "0",
-    icon: UserGroupIcon,
-    change: "+0%",
-    changeType: "positive",
-  },
-];
-
 const chartOptions = {
   responsive: true,
   plugins: {
@@ -69,26 +44,115 @@ const chartOptions = {
   },
 };
 
-const chartData = {
-  labels: ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"],
-  datasets: [
-    {
-      label: "Ventes",
-      data: [0, 0, 0, 0, 0, 0, 0],
-      backgroundColor: "rgba(79, 70, 229, 0.5)",
-    },
-  ],
-};
-
 export default function Dashboard() {
-  // TODO: Implémenter les requêtes pour les données
-  const { data: salesData, isLoading } = useQuery({
+  // Récupération des dernières ventes
+  const { data: salesData, isLoading: salesLoading } = useQuery({
     queryKey: ["sales"],
+    queryFn: saleService.getAllSales,
+  });
+
+  // Modifiez la requête des statistiques de profit
+  const { data: profitData } = useQuery({
+    queryKey: ["profit"],
     queryFn: async () => {
-      // TODO: Remplacer par l'appel API réel
-      return [];
+      const today = new Date();
+      const lastMonth = new Date();
+      lastMonth.setMonth(lastMonth.getMonth() - 1);
+      const result = await reportService.getProfitReport(
+        lastMonth.toISOString().split("T")[0],
+        today.toISOString().split("T")[0]
+      );
+      console.log("Profit Data:", result); // Ajout du log
+      return result;
     },
   });
+
+  // Récupération du nombre de produits
+  const { data: products } = useQuery({
+    queryKey: ["products"],
+    queryFn: productService.getAllProducts,
+  });
+
+  // Récupération du nombre d'utilisateurs
+  const { data: users } = useQuery({
+    queryKey: ["users"],
+    queryFn: userService.getAllUsers,
+  });
+
+  // Récupération des ventes hebdomadaires pour le graphique
+  const { data: weeklyData } = useQuery({
+    queryKey: ["weekly-sales"],
+    queryFn: async () => {
+      const today = new Date();
+      const lastWeek = new Date();
+      lastWeek.setDate(lastWeek.getDate() - 7);
+      return reportService.getWeeklyReport(
+        lastWeek.toISOString().split("T")[0],
+        today.toISOString().split("T")[0]
+      );
+    },
+  });
+
+  // Modifiez la fonction formatNumber pour ajouter un log
+  const formatNumber = (value) => {
+    console.log("Value to format:", value, typeof value);
+    if (typeof value !== "number" || isNaN(value)) return "0";
+    return new Intl.NumberFormat("fr-FR").format(value);
+  };
+
+  // Modifiez la carte des statistiques
+  const updatedStats = [
+    {
+      name: "Chiffre d'affaires",
+      value: profitData
+        ? `${formatNumber(Number(profitData.totalSales))} GNF`
+        : "0 GNF",
+      icon: CurrencyEuroIcon,
+      change: profitData
+        ? `${formatNumber(Number(profitData.profitMargin))}%`
+        : "0%",
+      changeType:
+        (profitData?.profitMargin || 0) >= 0 ? "positive" : "negative",
+    },
+    {
+      name: "Ventes",
+      value: profitData?.transactionCount || 0,
+      icon: ShoppingBagIcon,
+      //change: "+0%", // TODO: Calculer la variation
+      changeType: "positive",
+    },
+    {
+      name: "Produits",
+      value: products?.length || 0,
+      icon: CubeIcon,
+      change: `${
+        products?.filter((p) => p.quantity <= 10).length || 0
+      } en stock bas`,
+      changeType: "positive",
+    },
+    {
+      name: "Utilisateurs",
+      value: users?.length || 0,
+      icon: UserGroupIcon,
+      //change: "+0%", // TODO: Calculer la variation
+      changeType: "positive",
+    },
+  ];
+
+  // Mise à jour des données du graphique
+  const updatedChartData = {
+    labels:
+      weeklyData?.map((day) =>
+        new Date(day.date).toLocaleDateString("fr-FR", { weekday: "short" })
+      ) || [],
+    datasets: [
+      {
+        label: "Ventes",
+        data: weeklyData?.map((day) => day.total_sales) || [],
+        backgroundColor: "rgba(79, 70, 229, 0.5)",
+      },
+    ],
+  };
 
   return (
     <div className="space-y-6">
@@ -100,7 +164,7 @@ export default function Dashboard() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((item) => (
+        {updatedStats.map((item) => (
           <div
             key={item.name}
             className="relative overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:px-6 sm:py-6"
@@ -133,7 +197,7 @@ export default function Dashboard() {
 
       {/* Graphique */}
       <div className="bg-white p-6 rounded-lg shadow">
-        <Bar options={chartOptions} data={chartData} />
+        <Bar options={chartOptions} data={updatedChartData} />
       </div>
 
       {/* Dernières ventes */}
@@ -145,7 +209,7 @@ export default function Dashboard() {
         </div>
         <div className="border-t border-gray-200">
           <div className="px-4 py-5 sm:p-6">
-            {isLoading ? (
+            {salesLoading ? (
               <p>Chargement...</p>
             ) : salesData?.length === 0 ? (
               <p className="text-gray-500">Aucune vente récente</p>
