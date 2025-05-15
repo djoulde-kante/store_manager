@@ -1,8 +1,19 @@
 // Export all API services
-export * from './config';
-export * as authService from './authService';
-export * as productService from './productService';
-export * as saleService from './saleService';
-export * as orderService from './orderService';
-export * as reportService from './reportService';
-export * as userService from './userService';
+export * from "./config";
+import * as authService from "./authService";
+import * as userService from "./userService";
+import * as productService from "./productService";
+import * as saleService from "./saleService";
+import * as orderService from "./orderService";
+import * as reportService from "./reportService";
+import * as performanceService from "./performanceService";
+
+export {
+  authService,
+  userService,
+  productService,
+  saleService,
+  orderService,
+  reportService,
+  performanceService,
+};

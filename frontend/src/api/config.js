@@ -1,5 +1,5 @@
 // API base URL
-export const API_URL = "http://localhost:5000/api";
+export const API_URL = "http://localhost:5000/api"; //https://store-manager-wl0o.onrender.com http://localhost:5000/api
 
 // Helper function to handle API responses
 export const handleResponse = async (response) => {

@@ -20,6 +20,7 @@ const salesRoutes = require("./routes/sales");
 const userRoutes = require("./routes/users");
 const reportRoutes = require("./routes/reports");
 const orderRoutes = require("./routes/orders");
+const performanceRoutes = require("./routes/userPerformance");
 
 // Use routes
 app.use("/api/products", productRoutes);
@@ -27,6 +28,7 @@ app.use("/api/sales", salesRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/performance", performanceRoutes);
 
 // Root route
 app.get("/", (req, res) => {

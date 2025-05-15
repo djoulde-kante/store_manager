@@ -1,4 +1,4 @@
-const { pool } = require('../config/db');
+const { pool } = require("../config/db");
 
 // Get all sales
 async function getAllSales() {
@@ -11,7 +11,7 @@ async function getAllSales() {
     `);
     return rows;
   } catch (error) {
-    console.error('Error getting sales:', error);
+    console.error("Error getting sales:", error);
     throw error;
   }
 }
@@ -19,61 +19,60 @@ async function getAllSales() {
 // Get sales by date range
 async function getSalesByDateRange(startDate, endDate) {
   try {
-    const [rows] = await pool.query(`
+    const [rows] = await pool.query(
+      `
       SELECT s.*, p.name as product_name 
       FROM sales s
       JOIN products p ON s.product_id = p.id
       WHERE DATE(s.timestamp) BETWEEN ? AND ?
       ORDER BY s.timestamp DESC
-    `, [startDate, endDate]);
+    `,
+      [startDate, endDate]
+    );
     return rows;
   } catch (error) {
-    console.error('Error getting sales by date range:', error);
+    console.error("Error getting sales by date range:", error);
     throw error;
   }
 }
 
 // Create a new sale
 async function createSale(sale) {
-  const connection = await pool.getConnection();
   try {
-    await connection.beginTransaction();
-    
-    const { product_id, quantity, total, payment_method } = sale;
-    
-    // Insert sale record
-    const [result] = await connection.query(
-      'INSERT INTO sales (product_id, quantity, total, payment_method) VALUES (?, ?, ?, ?)',
-      [product_id, quantity, total, payment_method]
+    const { product_id, user_id, quantity, total, payment_method } = sale;
+
+    // Insert sale into database
+    const [result] = await pool.query(
+      "INSERT INTO sales (product_id, user_id, quantity, total, payment_method) VALUES (?, ?, ?, ?, ?)",
+      [product_id, user_id, quantity, total, payment_method]
     );
-    
+
     // Update product quantity
-    await connection.query(
-      'UPDATE products SET quantity = quantity - ? WHERE id = ?',
+    await pool.query(
+      "UPDATE products SET quantity = quantity - ? WHERE id = ?",
       [quantity, product_id]
     );
-    
-    await connection.commit();
+
     return { id: result.insertId, ...sale };
   } catch (error) {
-    await connection.rollback();
-    console.error('Error creating sale:', error);
+    console.error("Error creating sale:", error);
     throw error;
-  } finally {
-    connection.release();
   }
 }
 
 // Get sales by product
 async function getSalesByProduct(productId) {
   try {
-    const [rows] = await pool.query(`
+    const [rows] = await pool.query(
+      `
       SELECT s.*, p.name as product_name 
       FROM sales s
       JOIN products p ON s.product_id = p.id
       WHERE s.product_id = ?
       ORDER BY s.timestamp DESC
-    `, [productId]);
+    `,
+      [productId]
+    );
     return rows;
   } catch (error) {
     console.error(`Error getting sales for product ${productId}:`, error);
@@ -84,7 +83,8 @@ async function getSalesByProduct(productId) {
 // Get sales summary by day
 async function getDailySalesSummary(date) {
   try {
-    const [rows] = await pool.query(`
+    const [rows] = await pool.query(
+      `
       SELECT 
         DATE(timestamp) as date,
         SUM(total) as total_sales,
@@ -92,10 +92,12 @@ async function getDailySalesSummary(date) {
       FROM sales
       WHERE DATE(timestamp) = ?
       GROUP BY DATE(timestamp)
-    `, [date]);
+    `,
+      [date]
+    );
     return rows[0] || { date, total_sales: 0, transaction_count: 0 };
   } catch (error) {
-    console.error('Error getting daily sales summary:', error);
+    console.error("Error getting daily sales summary:", error);
     throw error;
   }
 }
@@ -105,5 +107,5 @@ module.exports = {
   getSalesByDateRange,
   createSale,
   getSalesByProduct,
-  getDailySalesSummary
+  getDailySalesSummary,
 };
